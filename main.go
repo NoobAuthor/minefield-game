@@ -6,12 +6,9 @@ import (
 	"time"
 )
 
-// Create a Struct for the Game Board
-// Define a struct to represent the ame board, cells, and their states.
-
 type Cell struct {
 	IsMine        bool
-	IsReavealed   bool
+	IsRevealed    bool
 	IsFlagged     bool
 	AdjacentMines int
 }
@@ -73,7 +70,6 @@ func calculateAdjacentMines(board *Board) {
 		}
 	}
 }
-
 func (b *Board) Reveal(r, c int) bool {
 	if r < 0 || r >= b.Rows || c < 0 || c >= b.Cols || b.Cells[r][c].IsRevealed {
 		return false
@@ -98,4 +94,58 @@ func (b *Board) Reveal(r, c int) bool {
 	}
 
 	return false
+}
+func printBoard(board *Board) {
+	for _, row := range board.Cells {
+		for _, cell := range row {
+			if cell.IsRevealed {
+				if cell.IsMine {
+					fmt.Print("* ")
+				} else {
+					fmt.Printf("%d ", cell.AdjacentMines)
+				}
+			} else if cell.IsFlagged {
+				fmt.Print("F ")
+			} else {
+				fmt.Print(". ")
+			}
+		}
+		fmt.Println()
+	}
+}
+
+func main() {
+	rows, cols, mines := 10, 10, 10
+	board := NewBoard(rows, cols, mines)
+
+	var r, c int
+	for {
+		printBoard(board)
+		fmt.Print("Enter row and column to reveal (e.g., '3 4'): ")
+		fmt.Scan(&r, &c)
+
+		if board.Reveal(r, c) {
+			fmt.Println("Game Over! You hit a mine.")
+			printBoard(board)
+			break
+		}
+
+		// Check for win condition
+		if checkWin(board) {
+			fmt.Println("Congratulations! You've cleared the minefield.")
+			printBoard(board)
+			break
+		}
+	}
+}
+
+func checkWin(board *Board) bool {
+	for _, row := range board.Cells {
+		for _, cell := range row {
+			if !cell.IsMine && !cell.IsRevealed {
+				return false
+			}
+		}
+	}
+	return true
 }
