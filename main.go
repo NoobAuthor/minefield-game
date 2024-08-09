@@ -73,3 +73,29 @@ func calculateAdjacentMines(board *Board) {
 		}
 	}
 }
+
+func (b *Board) Reveal(r, c int) bool {
+	if r < 0 || r >= b.Rows || c < 0 || c >= b.Cols || b.Cells[r][c].IsRevealed {
+		return false
+	}
+
+	b.Cells[r][c].IsRevealed = true
+
+	if b.Cells[r][c].IsMine {
+		return true
+	}
+
+	if b.Cells[r][c].AdjacentMines == 0 {
+		directions := []struct{ dr, dc int }{
+			{-1, -1}, {-1, 0}, {-1, 1},
+			{0, -1}, {0, 1},
+			{1, -1}, {1, 0}, {1, 1},
+		}
+
+		for _, d := range directions {
+			b.Reveal(r+d.dr, c+d.dc)
+		}
+	}
+
+	return false
+}
