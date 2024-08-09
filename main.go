@@ -70,6 +70,7 @@ func calculateAdjacentMines(board *Board) {
 		}
 	}
 }
+
 func (b *Board) Reveal(r, c int) bool {
 	if r < 0 || r >= b.Rows || c < 0 || c >= b.Cols || b.Cells[r][c].IsRevealed {
 		return false
@@ -78,6 +79,7 @@ func (b *Board) Reveal(r, c int) bool {
 	b.Cells[r][c].IsRevealed = true
 
 	if b.Cells[r][c].IsMine {
+		endGame(b)
 		return true
 	}
 
@@ -95,6 +97,7 @@ func (b *Board) Reveal(r, c int) bool {
 
 	return false
 }
+
 func printBoard(board *Board) {
 	for _, row := range board.Cells {
 		for _, cell := range row {
@@ -114,6 +117,27 @@ func printBoard(board *Board) {
 	}
 }
 
+func checkWin(board *Board) bool {
+	for _, row := range board.Cells {
+		for _, cell := range row {
+			if !cell.IsMine && !cell.IsRevealed {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func endGame(board *Board) {
+	fmt.Println("Game Over! You hit a mine.")
+	for r := 0; r < board.Rows; r++ {
+		for c := 0; c < board.Cols; c++ {
+			board.Cells[r][c].IsRevealed = true
+		}
+	}
+	printBoard(board)
+}
+
 func main() {
 	rows, cols, mines := 10, 10, 10
 	board := NewBoard(rows, cols, mines)
@@ -125,8 +149,6 @@ func main() {
 		fmt.Scan(&r, &c)
 
 		if board.Reveal(r, c) {
-			fmt.Println("Game Over! You hit a mine.")
-			printBoard(board)
 			break
 		}
 
@@ -137,15 +159,4 @@ func main() {
 			break
 		}
 	}
-}
-
-func checkWin(board *Board) bool {
-	for _, row := range board.Cells {
-		for _, cell := range row {
-			if !cell.IsMine && !cell.IsRevealed {
-				return false
-			}
-		}
-	}
-	return true
 }
